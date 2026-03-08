@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: bookings
+    tables:
+      - name: airplanes
+      - name: airplanes_data
+        meta:
+          dagster:
+            asset_key: [ "load_data_air_service" ]
+      - name: airports
+      - name: airports_data
+      - name: boarding_passes
+      - name: bookings
+      - name: flights
+      - name: routes
+      - name: seats
+      - name: segments
+      - name: tickets
+      - name: timetable

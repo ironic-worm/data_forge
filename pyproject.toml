@@ -1,0 +1,33 @@
+[project]
+name = "dagster_air_service"
+requires-python = "==3.12"
+version = "0.1.0"
+dependencies = [
+    "dagster==1.12.17",
+    "dbt-core>=1.11.7",
+    "dbt-postgres>=1.10.0",
+]
+
+[dependency-groups]
+dev = [
+    "dagster-webserver",
+    "dagster-dg-cli",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+force-include = { "pyproject.toml" = "pyproject.toml" }
+
+[tool.dg]
+directory_type = "project"
+
+[tool.dg.project]
+root_module = "dagster_air_service"
+registry_modules = [
+    "dagster_air_service.components.*",
+]
+
+

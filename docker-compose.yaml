@@ -1,0 +1,61 @@
+x-air_service-depends-on: &air_service-depends-on
+  postgresql:
+    condition: service_healthy
+  cache:
+    condition: service_started
+
+services:
+  postgresql:
+    container_name: postgresql
+    image: postgres
+    restart: always
+    command: "--work_mem=10MB"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker-volume/db-data-postgres:/var/lib/postgresql
+      - ./docker-volume/db-init-dump:/db-init-dump
+      - ./docker-volume/db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: pg_isready -h localhost -p 5432 -U postgres
+      retries: 10
+      interval: 30s
+      timeout: 5s
+
+  cache:
+    image: redis:6
+    restart: always
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    hostname: metabase
+    restart: always
+    volumes:
+      - /dev/urandom:/dev/random:ro
+    ports:
+      - '3000:3000'
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: postgres
+      MB_DB_PASS: postgres
+      MB_DB_HOST: 'postgresql'
+    depends_on: *air_service-depends-on
+    healthcheck:
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+
+
+networks:
+  default:
+    name: air_service
